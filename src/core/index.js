@@ -77,6 +77,8 @@ let Core = function( opts ){
     userZoomingEnabled: defVal( true, options.userZoomingEnabled ),
     panningEnabled: defVal( true, options.panningEnabled ),
     userPanningEnabled: defVal( true, options.userPanningEnabled ),
+    userPanningEnabledX: defVal( true, options.userPanningEnabledX ),
+    userPanningEnabledY: defVal( true, options.userPanningEnabledY ),
     boxSelectionEnabled: defVal( true, options.boxSelectionEnabled ),
     autolock: defVal( false, options.autolock, options.autolockNodes ),
     autoungrabify: defVal( false, options.autoungrabify, options.autoungrabifyNodes ),
@@ -414,7 +416,7 @@ util.extend( corefn, {
 
       let fields = [
         'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled',
-        'panningEnabled', 'userPanningEnabled',
+        'panningEnabled', 'userPanningEnabled', 'userPanningEnabledX', 'userPanningEnabledY',
         'boxSelectionEnabled',
         'autolock', 'autoungrabify', 'autounselectify'
       ];
@@ -465,6 +467,8 @@ util.extend( corefn, {
       json.maxZoom = _p.maxZoom;
       json.panningEnabled = _p.panningEnabled;
       json.userPanningEnabled = _p.userPanningEnabled;
+			json.userPanningEnabledX = _p.userPanningEnabledX;
+			json.userPanningEnabledY = _p.userPanningEnabledY;
       json.pan = util.copy( _p.pan );
       json.boxSelectionEnabled = _p.boxSelectionEnabled;
       json.renderer = util.copy( options.renderer );

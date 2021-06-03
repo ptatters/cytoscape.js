@@ -679,21 +679,24 @@ BRp.load = function(){
 
       if( cy.panningEnabled() && cy.userPanningEnabled() ){
         var deltaP;
+				// negate delta for locked axises
+				var enabledX = cy.userPanningEnabledX() ? 1 : 0;
+				var enabledY = cy.userPanningEnabledY() ? 1 : 0;
 
         if( r.hoverData.justStartedPan ){
           var mdPos = r.hoverData.mdownPos;
 
           deltaP = {
-            x: ( pos[0] - mdPos[0] ) * zoom,
-            y: ( pos[1] - mdPos[1] ) * zoom
+            x: ( pos[0] - mdPos[0] ) * enabledX * zoom,
+            y: ( pos[1] - mdPos[1] ) * enabledY * zoom
           };
 
           r.hoverData.justStartedPan = false;
 
         } else {
           deltaP = {
-            x: disp[0] * zoom,
-            y: disp[1] * zoom
+            x: disp[0] * enabledX * zoom,
+            y: disp[1] * enabledY * zoom
           };
 
         }
@@ -1084,6 +1087,12 @@ BRp.load = function(){
         newZoom = r.gestureStartZoom * e.scale;
       }
 
+			// center zoom on screen for locked axises
+			if (!cy.userPanningEnabledX())
+				rpos[0] = cy.width() / 2 * zoom + pan.x;
+			if (!cy.userPanningEnabledY())
+				rpos[1] = cy.height() / 2 * zoom + pan.y;
+
       cy.zoom( {
         level: newZoom,
         renderedPosition: { x: rpos[0], y: rpos[1] }
@@ -1165,7 +1174,7 @@ BRp.load = function(){
   var touchstartHandler;
   r.registerBinding( r.container, 'touchstart', touchstartHandler = function( e ){
     r.hasTouchStarted = true;
-    
+
     if( !eventInContainer(e) ){ return; }
 
     blurActiveDomElement();
@@ -1553,6 +1562,9 @@ BRp.load = function(){
       var factor = distance2 / distance1;
 
       if( twoFingersStartInside ){
+				var lockX = cy.userPanningEnabledX() ? 0 : 1;
+				var lockY = cy.userPanningEnabledY() ? 0 : 1;
+
         // delta finger1
         var df1x = f1x2 - f1x1;
         var df1y = f1y2 - f1y1;
@@ -1575,9 +1587,10 @@ BRp.load = function(){
         var ctrx = modelCenter1[0] * zoom1 + pan1.x;
         var ctry = modelCenter1[1] * zoom1 + pan1.y;
 
+				// center zoom on screen for locked axises
         var pan2 = {
-          x: -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
-          y: -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
+					x: lockX ? cy.width() / 2 : -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
+          y: lockY ? cy.height() / 2 : -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
         };
 
         // remove dragged eles
@@ -1740,18 +1753,21 @@ BRp.load = function(){
             r.data.bgActivePosistion = math.array2point( r.touchData.startPosition );
           }
 
+					var lockX = cy.userPanningEnabledX() ? 1 : 0;
+					var lockY = cy.userPanningEnabledY() ? 1 : 0;
+
           if( r.swipePanning ){
             cy.panBy( {
-              x: disp[0] * zoom,
-              y: disp[1] * zoom
+              x: disp[0] * lockX * zoom,
+              y: disp[1] * lockY * zoom
             } );
 
           } else if( isOverThresholdDrag ){
             r.swipePanning = true;
 
             cy.panBy( {
-              x: dx * zoom,
-              y: dy * zoom
+              x: dx * lockX * zoom,
+              y: dy * lockY * zoom
             } );
 
             if( start ){

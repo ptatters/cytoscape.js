@@ -74,6 +74,24 @@ let corefn = ({
     return this; // chaining
   },
 
+	userPanningEnabledX: function( bool ){
+		if (bool !== undefined){
+      this._private.userPanningEnabledX = bool ? true : false;
+    } else {
+      return this._private.userPanningEnabledX;
+    }
+		return this; // chaining
+	},
+
+	userPanningEnabledY: function( bool ){
+		if (bool !== undefined){
+      this._private.userPanningEnabledY = bool ? true : false;
+    } else {
+      return this._private.userPanningEnabledY;
+    }
+		return this; // chaining
+	},
+
   zoomingEnabled: function( bool ){
     if( bool !== undefined ){
       this._private.zoomingEnabled = bool ? true : false;

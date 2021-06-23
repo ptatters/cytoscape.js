@@ -562,6 +562,7 @@ BRp.load = function(){
     var preventDefault = false;
     var cy = r.cy;
     var zoom = cy.zoom();
+		var pan = cy.pan();
     var gpos = [ e.clientX, e.clientY ];
     var pos = r.projectIntoViewport( gpos[0], gpos[1] );
     var mdownPos = r.hoverData.mdownPos;
@@ -700,6 +701,18 @@ BRp.load = function(){
           };
 
         }
+
+				// limit how far the user can pan
+				if (cy.userPanningRangeX())
+				{
+					var minDeltaX = Math.max(0, (cy.userPanningRangeX().x * zoom) - (pan.x + deltaP.x));
+					var maxDeltaX = Math.min(0, (
+						(cy.userPanningRangeX().x - cy.userPanningRangeX().width) * zoom -
+						((pan.x - cy.width()) + deltaP.x)
+					));
+
+					deltaP.x = Math.max(maxDeltaX, Math.min(deltaP.x, minDeltaX));
+				}
 
         cy.panBy( deltaP );
 
@@ -1755,30 +1768,44 @@ BRp.load = function(){
 
 					var lockX = cy.userPanningEnabledX() ? 1 : 0;
 					var lockY = cy.userPanningEnabledY() ? 1 : 0;
+					var deltaP;
 
-          if( r.swipePanning ){
-            cy.panBy( {
-              x: disp[0] * lockX * zoom,
-              y: disp[1] * lockY * zoom
-            } );
+					if ( r.swipePanning ){
+						deltaP = {
+							x: disp[0] * lockX * zoom,
+							y: disp[1] * lockY * zoom
+						};
+					} else if ( isOverThresholdDrag ){
+						deltaP = {
+							x: dx * lockX * zoom,
+							y: dy * lockY * zoom
+						};
+					} else { return ; }
 
-          } else if( isOverThresholdDrag ){
-            r.swipePanning = true;
+					if (cy.userPanningRangeX())
+					{
+						var pan = cy.pan();
+						var minDeltaX = Math.max(0, (cy.userPanningRangeX().x * zoom) - (pan.x + deltaP.x));
+						var maxDeltaX = Math.min(0, (
+							(cy.userPanningRangeX().x - cy.userPanningRangeX().width) * zoom -
+							((pan.x - cy.width()) + deltaP.x)
+						));
+						deltaP.x = Math.max(maxDeltaX, Math.min(deltaP.x, minDeltaX));
+					}
 
-            cy.panBy( {
-              x: dx * lockX * zoom,
-              y: dy * lockY * zoom
-            } );
+					if ( r.swipePanning ){
+						cy.panBy(deltaP);
+					} else if ( isOverThresholdDrag ){
+						r.swipePanning = true;
+
+						cy.panBy(deltaP);
 
             if( start ){
               start.unactivate();
-
               r.redrawHint( 'select', true );
-
               r.touchData.start = null;
-            }
-          }
-
+						}
+					}
         }
 
         // Re-project

@@ -92,6 +92,15 @@ let corefn = ({
 		return this; // chaining
 	},
 
+	userPanningRangeX: function( range ){
+		if (range != undefined){
+			this._private.userPanningRangeX = range ? range : false;
+		} else {
+			return this._private.userPanningRangeX;
+		}
+		return this; // chaining
+	},
+
   zoomingEnabled: function( bool ){
     if( bool !== undefined ){
       this._private.zoomingEnabled = bool ? true : false;

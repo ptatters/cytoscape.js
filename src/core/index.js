@@ -75,17 +75,21 @@ let Core = function( opts ){
     maxZoom: 1e50,
     zoomingEnabled: defVal( true, options.zoomingEnabled ),
     userZoomingEnabled: defVal( true, options.userZoomingEnabled ),
+		userZoomingAnchor: defVal({ x: undefined, y: undefined }, options.userZoomingAnchor ),
     panningEnabled: defVal( true, options.panningEnabled ),
     userPanningEnabled: defVal( true, options.userPanningEnabled ),
     userPanningEnabledX: defVal( true, options.userPanningEnabledX ),
     userPanningEnabledY: defVal( true, options.userPanningEnabledY ),
-		userPanningRangeX: defVal(false, options.userPanningRangeX),
+		userPanningRangeX: defVal( false, options.userPanningRangeX),
     boxSelectionEnabled: defVal( true, options.boxSelectionEnabled ),
     autolock: defVal( false, options.autolock, options.autolockNodes ),
     autoungrabify: defVal( false, options.autoungrabify, options.autoungrabifyNodes ),
     autounselectify: defVal( false, options.autounselectify ),
     styleEnabled: options.styleEnabled === undefined ? head : options.styleEnabled,
     zoom: is.number( options.zoom ) ? options.zoom : 1,
+		zoomLevels: is.array( options.zoomLevels ) &&
+			options.zoomLevels.reduce( (s, l) => ( s * is.number(l) ), 1 ) ? options.zoomLevels : [],
+		zoomLevel: defVal( 0, options.zoomLevel ),
     pan: {
       x: is.plainObject( options.pan ) && is.number( options.pan.x ) ? options.pan.x : 0,
       y: is.plainObject( options.pan ) && is.number( options.pan.y ) ? options.pan.y : 0
@@ -416,9 +420,9 @@ util.extend( corefn, {
       }
 
       let fields = [
-        'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled',
+        'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled', 'userZoomingAnchor',
         'panningEnabled', 'userPanningEnabled', 'userPanningEnabledX', 'userPanningEnabledY',
-        'userPanningRangeX', 'boxSelectionEnabled',
+        'userPanningRangeX', 'boxSelectionEnabled', 'zoomLevels', 'zoomLevel',
         'autolock', 'autoungrabify', 'autounselectify'
       ];
 
@@ -463,7 +467,10 @@ util.extend( corefn, {
 
       json.zoomingEnabled = _p.zoomingEnabled;
       json.userZoomingEnabled = _p.userZoomingEnabled;
+			json.userZoomingAnchor = _p.userZoomingAnchor;
       json.zoom = _p.zoom;
+			json.zoomLevels = _p.zoomLevels;
+			json.zoomLevel = _p.zoomLevel;
       json.minZoom = _p.minZoom;
       json.maxZoom = _p.maxZoom;
       json.panningEnabled = _p.panningEnabled;

@@ -1065,14 +1065,15 @@ BRp.load = function(){
       return;
     }
 
-    if( cy.panningEnabled() && cy.userPanningEnabled() && cy.zoomingEnabled() && cy.userZoomingEnabled() ){
+    if( cy.panningEnabled() && cy.userPanningEnabled() && cy.zoomingEnabled() &&
+			( cy.userZoomingEnabled() || (!r.data.wheelZooming && cy.zoomLevels().length))
+		){
       e.preventDefault();
 
       r.data.wheelZooming = true;
       clearTimeout( r.data.wheelTimeout );
       r.data.wheelTimeout = setTimeout( function(){
         r.data.wheelZooming = false;
-
         r.redrawHint( 'eles', true );
         r.redraw();
       }, 150 );
@@ -1100,17 +1101,36 @@ BRp.load = function(){
         newZoom = r.gestureStartZoom * e.scale;
       }
 
-			// center zoom on screen for locked axises
-			if (!cy.userPanningEnabledX())
-				rpos[0] = cy.width() / 2 * zoom + pan.x;
-			if (!cy.userPanningEnabledY())
-				rpos[1] = cy.height() / 2 * zoom + pan.y;
+			// use zoom anchor for locked axes
+			if (cy.userZoomingAnchor().x != undefined)
+				rpos[0] = cy.userZoomingAnchor().x;
+			if (cy.userZoomingAnchor().y != undefined)
+				rpos[1] = cy.userZoomingAnchor().y;
 
-      cy.zoom( {
-        level: newZoom,
-        renderedPosition: { x: rpos[0], y: rpos[1] }
-      } );
-    }
+			// transition between zoom levels
+			if ( cy.zoomLevels().length )
+			{
+				var lvl = cy.zoomLevel()  + ( newZoom < zoom ? -1 : 1 );
+				if ( lvl > -1 && lvl < cy.zoomLevels().length ){
+					// update zoom level index
+					cy.zoomLevel(lvl);
+					// transition zoom level
+					cy.stop().animate({
+						zoom: {
+							level: cy.zoomLevels()[ lvl ],
+							renderedPosition: { x: rpos[0], y: rpos[1] }
+						},
+						duration: 500
+					});
+				} else { return ; }
+
+			} else {
+				cy.zoom( {
+					level: newZoom,
+					renderedPosition: { x: rpos[0], y: rpos[1] }
+				} );
+			}
+		}
 
   };
 
@@ -1543,7 +1563,8 @@ BRp.load = function(){
     } else if(
       capture && e.touches[1]
       && !r.touchData.didSelect // don't allow box selection to degrade to pinch-to-zoom
-      && cy.zoomingEnabled() && cy.panningEnabled() && cy.userZoomingEnabled() && cy.userPanningEnabled()
+      && cy.zoomingEnabled() && cy.panningEnabled() && cy.userPanningEnabled() &&
+				( cy.userZoomingEnabled() || (!r.pinching && cy.zoomLevels().length) )
     ){ // two fingers => pinch to zoom
       e.preventDefault();
 
@@ -1575,9 +1596,6 @@ BRp.load = function(){
       var factor = distance2 / distance1;
 
       if( twoFingersStartInside ){
-				var lockX = cy.userPanningEnabledX() ? 0 : 1;
-				var lockY = cy.userPanningEnabledY() ? 0 : 1;
-
         // delta finger1
         var df1x = f1x2 - f1x1;
         var df1y = f1y2 - f1y1;
@@ -1600,11 +1618,16 @@ BRp.load = function(){
         var ctrx = modelCenter1[0] * zoom1 + pan1.x;
         var ctry = modelCenter1[1] * zoom1 + pan1.y;
 
-				// center zoom on screen for locked axises
         var pan2 = {
-					x: lockX ? cy.width() / 2 : -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
-          y: lockY ? cy.height() / 2 : -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
+					x: -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
+          y: -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
         };
+
+				// use zoom anchor for locked axes
+				if (cy.userZoomingAnchor().x != undefined)
+					pan2.x = cy.userZoomingAnchor().x;
+				if (cy.userZoomingAnchor().y != undefined)
+					pan2.y = cy.userZoomingAnchor().y;
 
         // remove dragged eles
         if( start && start.active() ){
@@ -1628,11 +1651,39 @@ BRp.load = function(){
           }
         }
 
-        cy.viewport( {
-          zoom: zoom2,
-          pan: pan2,
-          cancelOnFailedZoom: true
-        } );
+				// transition between zoom levels
+				if ( cy.zoomLevels().length )
+				{
+					var lvl = cy.zoomLevel() + ( zoom2 < zoom ? -1 : 1 );
+					if ( !r.pinching && lvl > -1 && lvl < cy.zoomLevels().length ){
+						// set zooming center to anchor or rendered position of pinch
+						if (cy.userZoomingAnchor().x == undefined)
+							pan2.x = ctrx;
+						if (cy.userZoomingAnchor().y == undefined)
+							pan2.y = ctry;
+						// update zoom elvel index
+						cy.zoomLevel(lvl);
+						// transition zoom level
+						cy.stop().animate( {
+							zoom: {
+								level: cy.zoomLevels()[ lvl ],
+								renderedPosition: {
+									x: pan2.x,
+									y : pan2.y
+								}
+							},
+							duration: 500
+						} );
+
+					} else { return ; }
+
+				} else {
+					cy.viewport( {
+						zoom: zoom2,
+						pan: pan2,
+						cancelOnFailedZoom: true
+					} );
+				}
 
         distance1 = distance2;
         f1x1 = f1x2;

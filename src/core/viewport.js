@@ -121,6 +121,50 @@ let corefn = ({
     return this; // chaining
   },
 
+	userZoomingAnchor: function (){
+		let args = arguments;
+		let anchor = this._private.userZoomingAnchor;
+		let dim, val, dims, x, y;
+
+		switch( args.length ){
+			case 0: // get
+				return anchor;
+
+			case 1:
+				if ( is.string( args[0] ) ){ // single axis
+					dim = args[0];
+					return anchor[ dim ];
+				} else if ( is.plainObject( args[0] ) ){ // set both axes
+					dims = args[0];
+					x = dims.x;
+					y = dims.y;
+
+					if (is.number( x ) || x === undefined ){ // undefined resets anchor
+						anchor.x = x;
+					}
+
+					if (is.number( y ) || x === undefined ){ // undefined resets anchor
+						anchor.y = y;
+					}
+				}
+				break;
+
+			case 2: // set single axis
+				dim = args[0];
+				val = args[1];
+
+				if ( (dim === 'x' || dim === 'y') && (is.number( val ) || val === undefined ) ){
+					anchor[ dim ] = val;
+				}
+
+				break;
+
+			default:
+				break;
+		}
+		return this; // chaining
+	},
+
   boxSelectionEnabled: function( bool ){
     if( bool !== undefined ){
       this._private.boxSelectionEnabled = bool ? true : false;
@@ -444,6 +488,28 @@ let corefn = ({
       return this; // chaining
     }
   },
+
+	zoomLevels: function( lvls) {
+		if ( lvls === undefined){ // get
+			return this._private.zoomLevels;
+		} else if ( is.array(lvls) ){ // set
+			this._private.zoomLevels = lvls.map(lvl => lvl);
+		} else if ( lvls === null){ // reset
+			this._private.zoomLevels = [];
+		}
+
+		return this; // chaining
+	},
+
+	zoomLevel: function( lvl ){
+		if ( lvl == undefined){ // get
+			return this._private.zoomLevel;
+		} else if ( is.number(lvl) && lvl > -1 && lvl < this._private.zoomLevels.length ){
+			this._private.zoomLevel = lvl;
+		}
+
+		return this; // chaining
+	},
 
   viewport: function( opts ){
     let _p = this._private;

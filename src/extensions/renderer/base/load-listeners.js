@@ -1624,10 +1624,11 @@ BRp.load = function(){
         };
 
 				// use zoom anchor for locked axes
-				if (cy.userZoomingAnchor().x != undefined)
-					pan2.x = cy.userZoomingAnchor().x;
-				if (cy.userZoomingAnchor().y != undefined)
-					pan2.y = cy.userZoomingAnchor().y;
+				const anchor = cy.userZoomingAnchor();
+				if (anchor.x != undefined)
+					pan2.x = -zoom2 / zoom1 * (anchor.x - pan1.x) + anchor.x;
+				if (anchor.y != undefined)
+					pan2.y = -zoom2 / zoom1 * (anchor.y - pan1.y) + anchor.y;
 
         // remove dragged eles
         if( start && start.active() ){

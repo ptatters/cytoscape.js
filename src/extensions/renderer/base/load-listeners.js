@@ -1120,6 +1120,9 @@ BRp.load = function(){
 							level: cy.zoomLevels()[ lvl ],
 							renderedPosition: { x: rpos[0], y: rpos[1] }
 						},
+						complete: () => {
+							cy.emit('zoomlvl', cy.zoomLevels()[ lvl ]);
+						},
 						duration: 500
 					});
 				} else { return ; }
@@ -1672,6 +1675,9 @@ BRp.load = function(){
 									x: pan2.x,
 									y : pan2.y
 								}
+							},
+							complete: () => {
+								cy.emit('zoomlvl', cy.zoomLevels()[ lvl ]);
 							},
 							duration: 500
 						} );

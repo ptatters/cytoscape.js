@@ -101,6 +101,15 @@ let corefn = ({
 		return this; // chaining
 	},
 
+	horizontalScroll: function( bool ){
+		if (bool !== undefined){
+			this._private.horizontalScroll = bool ? true : false;
+		} else {
+			return this._private.horizontalScroll;
+		}
+		return (this);
+	},
+
   zoomingEnabled: function( bool ){
     if( bool !== undefined ){
       this._private.zoomingEnabled = bool ? true : false;

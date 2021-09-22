@@ -1088,12 +1088,39 @@ BRp.load = function(){
         diff = e.wheelDelta / 1000;
       }
 
+			let diffx;
+      if(e.deltaX != null){
+        diffx = e.deltaX / -4;
+      } else if(e.wheelDeltaX != null){
+        diffx = e.wheelDeltaX;
+      } else {
+        diffx = e.wheelDelta;
+			}
+
       diff = diff * r.wheelSensitivity;
 
       var needsWheelFix = e.deltaMode === 1;
       if( needsWheelFix ){ // fixes slow wheel events on ff/linux and ff/windows
         diff *= 33;
+				diffx *= 33;
       }
+
+			// Trackpad horizontal scrolling
+			if (cy.horizontalScroll() && Math.abs(diffx) > 0.25)
+			{
+				diffx *= 5;
+				const range = cy.userPanningRangeX();
+				if (range)
+				{
+					const minDeltaX = Math.max(0, (range.x * zoom) - (pan.x + diffx));
+					const maxDeltaX = Math.min(0, (
+						(range.x - range.width) * zoom - ((pan.x - cy.width() + diffx))
+					));
+					diffx = Math.max(maxDeltaX, Math.min(diffx, minDeltaX));
+				}
+				cy.panBy('x', diffx);
+				return ;
+			}
 
       var newZoom = cy.zoom() * Math.pow( 10, diff );
 

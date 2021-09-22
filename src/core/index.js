@@ -80,7 +80,8 @@ let Core = function( opts ){
     userPanningEnabled: defVal( true, options.userPanningEnabled ),
     userPanningEnabledX: defVal( true, options.userPanningEnabledX ),
     userPanningEnabledY: defVal( true, options.userPanningEnabledY ),
-		userPanningRangeX: defVal( false, options.userPanningRangeX),
+		userPanningRangeX: defVal( false, options.userPanningRangeX ),
+		horizontalScroll: defVal( false, options.horizontalScroll ),
     boxSelectionEnabled: defVal( true, options.boxSelectionEnabled ),
     autolock: defVal( false, options.autolock, options.autolockNodes ),
     autoungrabify: defVal( false, options.autoungrabify, options.autoungrabifyNodes ),
@@ -422,7 +423,7 @@ util.extend( corefn, {
       let fields = [
         'minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled', 'userZoomingAnchor',
         'panningEnabled', 'userPanningEnabled', 'userPanningEnabledX', 'userPanningEnabledY',
-        'userPanningRangeX', 'boxSelectionEnabled', 'zoomLevels', 'zoomLevel',
+        'userPanningRangeX', 'horizontalScroll', 'boxSelectionEnabled', 'zoomLevels', 'zoomLevel',
         'autolock', 'autoungrabify', 'autounselectify'
       ];
 
@@ -477,6 +478,7 @@ util.extend( corefn, {
       json.userPanningEnabled = _p.userPanningEnabled;
 			json.userPanningEnabledX = _p.userPanningEnabledX;
 			json.userPanningRangeX = _p.userPanningRangeX;
+			json.horizontalScroll = _p.horizontalScroll;
 			json.userPanningEnabledY = _p.userPanningEnabledY;
       json.pan = util.copy( _p.pan );
       json.boxSelectionEnabled = _p.boxSelectionEnabled;

@@ -703,15 +703,13 @@ BRp.load = function(){
         }
 
 				// limit how far the user can pan
-				if (cy.userPanningRangeX())
+				const range = cy.userPanningRangeX();
+				if (range)
 				{
-					var minDeltaX = Math.max(0, (cy.userPanningRangeX().x * zoom) - (pan.x + deltaP.x));
-					var maxDeltaX = Math.min(0, (
-						(cy.userPanningRangeX().x - cy.userPanningRangeX().width) * zoom -
-						((pan.x - cy.width()) + deltaP.x)
-					));
-
-					deltaP.x = Math.max(maxDeltaX, Math.min(deltaP.x, minDeltaX));
+					const view = cy.userPanningViewWidth();
+					const diff1 = Math.max(0, range.x * zoom - pan.x);
+					const diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+					deltaP.x = Math.min(diff1, Math.max(deltaP.x, diff2));
 				}
 
         cy.panBy( deltaP );
@@ -1109,14 +1107,14 @@ BRp.load = function(){
 			if (cy.horizontalScroll())
 			{
 				diffx *= 5;
+				// limit how far the user can pan
 				const range = cy.userPanningRangeX();
+				const view = cy.userPanningViewWidth();
 				if (range)
 				{
-					const minDeltaX = Math.max(0, (range.x * zoom) - (pan.x + diffx));
-					const maxDeltaX = Math.min(0, (
-						(range.x - range.width) * zoom - ((pan.x - cy.width() + diffx))
-					));
-					diffx = Math.max(maxDeltaX, Math.min(diffx, minDeltaX));
+					const diff1 = Math.max(0, range.x * zoom - pan.x);
+					const diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+					diffx = Math.min(diff1, Math.max(diffx, diff2));
 				}
 				cy.panBy('x', diffx);
 				return ;
@@ -1867,15 +1865,15 @@ BRp.load = function(){
 						};
 					} else { return ; }
 
-					if (cy.userPanningRangeX())
+					// limit how far the user can pan
+					const range = cy.userPanningRangeX();
+					if (range)
 					{
 						var pan = cy.pan();
-						var minDeltaX = Math.max(0, (cy.userPanningRangeX().x * zoom) - (pan.x + deltaP.x));
-						var maxDeltaX = Math.min(0, (
-							(cy.userPanningRangeX().x - cy.userPanningRangeX().width) * zoom -
-							((pan.x - cy.width()) + deltaP.x)
-						));
-						deltaP.x = Math.max(maxDeltaX, Math.min(deltaP.x, minDeltaX));
+						const view = cy.userPanningViewWidth();
+						const diff1 = Math.max(0, range.x * zoom - pan.x);
+						const diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+						deltaP.x = Math.min(diff1, Math.max(deltaP.x, diff2));
 					}
 
 					if ( r.swipePanning ){

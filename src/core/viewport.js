@@ -101,6 +101,15 @@ let corefn = ({
 		return this; // chaining
 	},
 
+	userPanningViewWidth: function( width ){
+		if (width != undefined){
+			this._private.userPanningViewWidth = width ? width : false;
+		} else {
+			return this._private.userPanningViewWidth;
+		}
+		return this; // chaining
+	},
+
 	horizontalScroll: function( bool ){
 		if (bool !== undefined){
 			this._private.horizontalScroll = bool ? true : false;

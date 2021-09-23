@@ -1106,7 +1106,7 @@ BRp.load = function(){
       }
 
 			// Trackpad horizontal scrolling
-			if (cy.horizontalScroll() && Math.abs(diffx) > 0.25)
+			if (cy.horizontalScroll())
 			{
 				diffx *= 5;
 				const range = cy.userPanningRangeX();

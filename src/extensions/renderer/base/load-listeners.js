@@ -1106,7 +1106,7 @@ BRp.load = function(){
 			// Trackpad horizontal scrolling
 			if (cy.horizontalScroll())
 			{
-				diffx *= 5;
+				diffx *= 50;
 				// limit how far the user can pan
 				const range = cy.userPanningRangeX();
 				const view = cy.userPanningViewWidth();

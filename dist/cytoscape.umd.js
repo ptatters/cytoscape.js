@@ -18591,6 +18591,51 @@
 
       return this; // chaining
     },
+    userPanningEnabledX: function userPanningEnabledX(bool) {
+      if (bool !== undefined) {
+        this._private.userPanningEnabledX = bool ? true : false;
+      } else {
+        return this._private.userPanningEnabledX;
+      }
+
+      return this; // chaining
+    },
+    userPanningEnabledY: function userPanningEnabledY(bool) {
+      if (bool !== undefined) {
+        this._private.userPanningEnabledY = bool ? true : false;
+      } else {
+        return this._private.userPanningEnabledY;
+      }
+
+      return this; // chaining
+    },
+    userPanningRangeX: function userPanningRangeX(range) {
+      if (range != undefined) {
+        this._private.userPanningRangeX = range ? range : false;
+      } else {
+        return this._private.userPanningRangeX;
+      }
+
+      return this; // chaining
+    },
+    userPanningViewWidth: function userPanningViewWidth(width) {
+      if (width != undefined) {
+        this._private.userPanningViewWidth = width ? width : false;
+      } else {
+        return this._private.userPanningViewWidth;
+      }
+
+      return this; // chaining
+    },
+    horizontalScroll: function horizontalScroll(bool) {
+      if (bool !== undefined) {
+        this._private.horizontalScroll = bool ? true : false;
+      } else {
+        return this._private.horizontalScroll;
+      }
+
+      return this;
+    },
     zoomingEnabled: function zoomingEnabled(bool) {
       if (bool !== undefined) {
         this._private.zoomingEnabled = bool ? true : false;
@@ -18605,6 +18650,54 @@
         this._private.userZoomingEnabled = bool ? true : false;
       } else {
         return this._private.userZoomingEnabled;
+      }
+
+      return this; // chaining
+    },
+    userZoomingAnchor: function userZoomingAnchor() {
+      var args = arguments;
+      var anchor = this._private.userZoomingAnchor;
+      var dim, val, dims, x, y;
+
+      switch (args.length) {
+        case 0:
+          // get
+          return anchor;
+
+        case 1:
+          if (string(args[0])) {
+            // single axis
+            dim = args[0];
+            return anchor[dim];
+          } else if (plainObject(args[0])) {
+            // set both axes
+            dims = args[0];
+            x = dims.x;
+            y = dims.y;
+
+            if (number(x) || x === undefined) {
+              // undefined resets anchor
+              anchor.x = x;
+            }
+
+            if (number(y) || x === undefined) {
+              // undefined resets anchor
+              anchor.y = y;
+            }
+          }
+
+          break;
+
+        case 2:
+          // set single axis
+          dim = args[0];
+          val = args[1];
+
+          if ((dim === 'x' || dim === 'y') && (number(val) || val === undefined)) {
+            anchor[dim] = val;
+          }
+
+          break;
       }
 
       return this; // chaining
@@ -18926,6 +19019,32 @@
         return this; // chaining
       }
     },
+    zoomLevels: function zoomLevels(lvls) {
+      if (lvls === undefined) {
+        // get
+        return this._private.zoomLevels;
+      } else if (array(lvls)) {
+        // set
+        this._private.zoomLevels = lvls.map(function (lvl) {
+          return lvl;
+        });
+      } else if (lvls === null) {
+        // reset
+        this._private.zoomLevels = [];
+      }
+
+      return this; // chaining
+    },
+    zoomLevel: function zoomLevel(lvl) {
+      if (lvl == undefined) {
+        // get
+        return this._private.zoomLevel;
+      } else if (number(lvl) && lvl > -1 && lvl < this._private.zoomLevels.length) {
+        this._private.zoomLevel = lvl;
+      }
+
+      return this; // chaining
+    },
     viewport: function viewport(opts) {
       var _p = this._private;
       var zoomDefd = true;
@@ -19214,14 +19333,26 @@
       maxZoom: 1e50,
       zoomingEnabled: defVal(true, options.zoomingEnabled),
       userZoomingEnabled: defVal(true, options.userZoomingEnabled),
+      userZoomingAnchor: defVal({
+        x: undefined,
+        y: undefined
+      }, options.userZoomingAnchor),
       panningEnabled: defVal(true, options.panningEnabled),
       userPanningEnabled: defVal(true, options.userPanningEnabled),
+      userPanningEnabledX: defVal(true, options.userPanningEnabledX),
+      userPanningEnabledY: defVal(true, options.userPanningEnabledY),
+      userPanningRangeX: defVal(false, options.userPanningRangeX),
+      horizontalScroll: defVal(false, options.horizontalScroll),
       boxSelectionEnabled: defVal(true, options.boxSelectionEnabled),
       autolock: defVal(false, options.autolock, options.autolockNodes),
       autoungrabify: defVal(false, options.autoungrabify, options.autoungrabifyNodes),
       autounselectify: defVal(false, options.autounselectify),
       styleEnabled: options.styleEnabled === undefined ? head : options.styleEnabled,
       zoom: number(options.zoom) ? options.zoom : 1,
+      zoomLevels: array(options.zoomLevels) && options.zoomLevels.reduce(function (s, l) {
+        return s * number(l);
+      }, 1) ? options.zoomLevels : [],
+      zoomLevel: defVal(0, options.zoomLevel),
       pan: {
         x: plainObject(options.pan) && number(options.pan.x) ? options.pan.x : 0,
         y: plainObject(options.pan) && number(options.pan.y) ? options.pan.y : 0
@@ -19537,7 +19668,7 @@
           cy.data(obj.data);
         }
 
-        var fields = ['minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled', 'panningEnabled', 'userPanningEnabled', 'boxSelectionEnabled', 'autolock', 'autoungrabify', 'autounselectify'];
+        var fields = ['minZoom', 'maxZoom', 'zoomingEnabled', 'userZoomingEnabled', 'userZoomingAnchor', 'panningEnabled', 'userPanningEnabled', 'userPanningEnabledX', 'userPanningEnabledY', 'userPanningRangeX', 'horizontalScroll', 'boxSelectionEnabled', 'zoomLevels', 'zoomLevel', 'autolock', 'autoungrabify', 'autounselectify'];
 
         for (var _i2 = 0; _i2 < fields.length; _i2++) {
           var f = fields[_i2];
@@ -19579,11 +19710,18 @@
         var options = _p.options;
         json.zoomingEnabled = _p.zoomingEnabled;
         json.userZoomingEnabled = _p.userZoomingEnabled;
+        json.userZoomingAnchor = _p.userZoomingAnchor;
         json.zoom = _p.zoom;
+        json.zoomLevels = _p.zoomLevels;
+        json.zoomLevel = _p.zoomLevel;
         json.minZoom = _p.minZoom;
         json.maxZoom = _p.maxZoom;
         json.panningEnabled = _p.panningEnabled;
         json.userPanningEnabled = _p.userPanningEnabled;
+        json.userPanningEnabledX = _p.userPanningEnabledX;
+        json.userPanningRangeX = _p.userPanningRangeX;
+        json.horizontalScroll = _p.horizontalScroll;
+        json.userPanningEnabledY = _p.userPanningEnabledY;
         json.pan = copy(_p.pan);
         json.boxSelectionEnabled = _p.boxSelectionEnabled;
         json.renderer = copy(options.renderer);
@@ -25345,6 +25483,7 @@
       var preventDefault = false;
       var cy = r.cy;
       var zoom = cy.zoom();
+      var pan = cy.pan();
       var gpos = [e.clientX, e.clientY];
       var pos = r.projectIntoViewport(gpos[0], gpos[1]);
       var mdownPos = r.hoverData.mdownPos;
@@ -25467,20 +25606,33 @@
         preventDefault = true;
 
         if (cy.panningEnabled() && cy.userPanningEnabled()) {
-          var deltaP;
+          var deltaP; // negate delta for locked axises
+
+          var enabledX = cy.userPanningEnabledX() ? 1 : 0;
+          var enabledY = cy.userPanningEnabledY() ? 1 : 0;
 
           if (r.hoverData.justStartedPan) {
             var mdPos = r.hoverData.mdownPos;
             deltaP = {
-              x: (pos[0] - mdPos[0]) * zoom,
-              y: (pos[1] - mdPos[1]) * zoom
+              x: (pos[0] - mdPos[0]) * enabledX * zoom,
+              y: (pos[1] - mdPos[1]) * enabledY * zoom
             };
             r.hoverData.justStartedPan = false;
           } else {
             deltaP = {
-              x: disp[0] * zoom,
-              y: disp[1] * zoom
+              x: disp[0] * enabledX * zoom,
+              y: disp[1] * enabledY * zoom
             };
+          } // limit how far the user can pan
+
+
+          var range = cy.userPanningRangeX();
+
+          if (range) {
+            var view = cy.userPanningViewWidth();
+            var diff1 = Math.max(0, range.x * zoom - pan.x);
+            var diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+            deltaP.x = Math.min(diff1, Math.max(deltaP.x, diff2));
           }
 
           cy.panBy(deltaP);
@@ -25828,7 +25980,7 @@
         return;
       }
 
-      if (cy.panningEnabled() && cy.userPanningEnabled() && cy.zoomingEnabled() && cy.userZoomingEnabled()) {
+      if (cy.panningEnabled() && cy.userPanningEnabled() && cy.zoomingEnabled() && (cy.userZoomingEnabled() || !r.data.wheelZooming && cy.zoomLevels().length)) {
         e.preventDefault();
         r.data.wheelZooming = true;
         clearTimeout(r.data.wheelTimeout);
@@ -25847,27 +25999,84 @@
           diff = e.wheelDelta / 1000;
         }
 
+        var diffx;
+
+        if (e.deltaX != null) {
+          diffx = e.deltaX / -4;
+        } else if (e.wheelDeltaX != null) {
+          diffx = e.wheelDeltaX;
+        } else {
+          diffx = e.wheelDelta;
+        }
+
         diff = diff * r.wheelSensitivity;
         var needsWheelFix = e.deltaMode === 1;
 
         if (needsWheelFix) {
           // fixes slow wheel events on ff/linux and ff/windows
           diff *= 33;
+          diffx *= 33;
+        } // Trackpad horizontal scrolling
+
+
+        if (cy.horizontalScroll()) {
+          diffx *= 50; // limit how far the user can pan
+
+          var range = cy.userPanningRangeX();
+          var view = cy.userPanningViewWidth();
+
+          if (range) {
+            var diff1 = Math.max(0, range.x * zoom - pan.x);
+            var diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+            diffx = Math.min(diff1, Math.max(diffx, diff2));
+          }
+
+          cy.panBy('x', diffx);
+          return;
         }
 
         var newZoom = cy.zoom() * Math.pow(10, diff);
 
         if (e.type === 'gesturechange') {
           newZoom = r.gestureStartZoom * e.scale;
-        }
+        } // use zoom anchor for locked axes
 
-        cy.zoom({
-          level: newZoom,
-          renderedPosition: {
-            x: rpos[0],
-            y: rpos[1]
+
+        if (cy.userZoomingAnchor().x != undefined) rpos[0] = cy.userZoomingAnchor().x;
+        if (cy.userZoomingAnchor().y != undefined) rpos[1] = cy.userZoomingAnchor().y; // transition between zoom levels
+
+        if (cy.zoomLevels().length) {
+          var lvl = cy.zoomLevel() + (newZoom < zoom ? -1 : 1);
+
+          if (lvl > -1 && lvl < cy.zoomLevels().length) {
+            // update zoom level index
+            cy.zoomLevel(lvl); // transition zoom level
+
+            cy.stop().animate({
+              zoom: {
+                level: cy.zoomLevels()[lvl],
+                renderedPosition: {
+                  x: rpos[0],
+                  y: rpos[1]
+                }
+              },
+              complete: function complete() {
+                cy.emit('zoomlvl', cy.zoomLevels()[lvl]);
+              },
+              duration: 500
+            });
+          } else {
+            return;
           }
-        });
+        } else {
+          cy.zoom({
+            level: newZoom,
+            renderedPosition: {
+              x: rpos[0],
+              y: rpos[1]
+            }
+          });
+        }
       }
     }; // Functions to help with whether mouse wheel should trigger zooming
     // --
@@ -26322,7 +26531,7 @@
         r.redrawHint('select', true);
         r.redraw(); // pinch to zoom
       } else if (capture && e.touches[1] && !r.touchData.didSelect // don't allow box selection to degrade to pinch-to-zoom
-      && cy.zoomingEnabled() && cy.panningEnabled() && cy.userZoomingEnabled() && cy.userPanningEnabled()) {
+      && cy.zoomingEnabled() && cy.panningEnabled() && cy.userPanningEnabled() && (cy.userZoomingEnabled() || !r.pinching && cy.zoomLevels().length)) {
         // two fingers => pinch to zoom
         e.preventDefault();
         r.data.bgActivePosistion = undefined;
@@ -26371,7 +26580,11 @@
           var pan2 = {
             x: -zoom2 / zoom1 * (ctrx - pan1.x - tx) + ctrx,
             y: -zoom2 / zoom1 * (ctry - pan1.y - ty) + ctry
-          }; // remove dragged eles
+          }; // use zoom anchor for locked axes
+
+          var anchor = cy.userZoomingAnchor();
+          if (anchor.x != undefined) pan2.x = -zoom2 / zoom1 * (anchor.x - pan1.x) + anchor.x;
+          if (anchor.y != undefined) pan2.y = -zoom2 / zoom1 * (anchor.y - pan1.y) + anchor.y; // remove dragged eles
 
           if (_start && _start.active()) {
             var draggedEles = r.dragData.touchDragEles;
@@ -26388,13 +26601,43 @@
 
               draggedEles.emit('dragfree');
             }
+          } // transition between zoom levels
+
+
+          if (cy.zoomLevels().length) {
+            var lvl = cy.zoomLevel() + (zoom2 < zoom ? -1 : 1);
+
+            if (!r.pinching && lvl > -1 && lvl < cy.zoomLevels().length) {
+              // set zooming center to anchor or rendered position of pinch
+              if (cy.userZoomingAnchor().x == undefined) pan2.x = ctrx;
+              if (cy.userZoomingAnchor().y == undefined) pan2.y = ctry; // update zoom elvel index
+
+              cy.zoomLevel(lvl); // transition zoom level
+
+              cy.stop().animate({
+                zoom: {
+                  level: cy.zoomLevels()[lvl],
+                  renderedPosition: {
+                    x: pan2.x,
+                    y: pan2.y
+                  }
+                },
+                complete: function complete() {
+                  cy.emit('zoomlvl', cy.zoomLevels()[lvl]);
+                },
+                duration: 500
+              });
+            } else {
+              return;
+            }
+          } else {
+            cy.viewport({
+              zoom: zoom2,
+              pan: pan2,
+              cancelOnFailedZoom: true
+            });
           }
 
-          cy.viewport({
-            zoom: zoom2,
-            pan: pan2,
-            cancelOnFailedZoom: true
-          });
           distance1 = distance2;
           f1x1 = f1x2;
           f1y1 = f1y2;
@@ -26545,17 +26788,40 @@
                 r.data.bgActivePosistion = array2point(r.touchData.startPosition);
               }
 
+              var lockX = cy.userPanningEnabledX() ? 1 : 0;
+              var lockY = cy.userPanningEnabledY() ? 1 : 0;
+              var deltaP;
+
               if (r.swipePanning) {
-                cy.panBy({
-                  x: disp[0] * zoom,
-                  y: disp[1] * zoom
-                });
+                deltaP = {
+                  x: disp[0] * lockX * zoom,
+                  y: disp[1] * lockY * zoom
+                };
+              } else if (isOverThresholdDrag) {
+                deltaP = {
+                  x: dx * lockX * zoom,
+                  y: dy * lockY * zoom
+                };
+              } else {
+                return;
+              } // limit how far the user can pan
+
+
+              var range = cy.userPanningRangeX();
+
+              if (range) {
+                var pan = cy.pan();
+                var view = cy.userPanningViewWidth();
+                var diff1 = Math.max(0, range.x * zoom - pan.x);
+                var diff2 = Math.min(0, (range.x - range.width) * zoom - (pan.x - view));
+                deltaP.x = Math.min(diff1, Math.max(deltaP.x, diff2));
+              }
+
+              if (r.swipePanning) {
+                cy.panBy(deltaP);
               } else if (isOverThresholdDrag) {
                 r.swipePanning = true;
-                cy.panBy({
-                  x: dx * zoom,
-                  y: dy * zoom
-                });
+                cy.panBy(deltaP);
 
                 if (start) {
                   start.unactivate();
@@ -32332,7 +32598,7 @@
     return style;
   };
 
-  var version = "3.17.4";
+  var version = "snapshot";
 
   var cytoscape = function cytoscape(options) {
     // if no options specified, use default

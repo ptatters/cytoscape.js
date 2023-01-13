@@ -1055,8 +1055,6 @@ BRp.load = function(){
     var zoom = cy.zoom();
     var pan = cy.pan();
     var pos = r.projectIntoViewport( e.clientX, e.clientY );
-    var rpos = [ pos[0] * zoom + pan.x,
-                  pos[1] * zoom + pan.y ];
 
     if( r.hoverData.draggingEles || r.hoverData.dragging || r.hoverData.cxtStarted || inBoxSelection() ){ // if pan dragging or cxt dragging, wheel movements make no zoom
       e.preventDefault();
@@ -1128,9 +1126,9 @@ BRp.load = function(){
 
 			// use zoom anchor for locked axes
 			if (cy.userZoomingAnchor().x != undefined)
-				rpos[0] = cy.userZoomingAnchor().x;
+				pos[0] = cy.userZoomingAnchor().x;
 			if (cy.userZoomingAnchor().y != undefined)
-				rpos[1] = cy.userZoomingAnchor().y;
+				pos[1] = cy.userZoomingAnchor().y;
 
 			// transition between zoom levels
 			if ( cy.zoomLevels().length )
@@ -1143,7 +1141,7 @@ BRp.load = function(){
 					cy.stop().animate({
 						zoom: {
 							level: cy.zoomLevels()[ lvl ],
-							renderedPosition: { x: rpos[0], y: rpos[1] }
+							position: { x: pos[0], y: pos[1] }
 						},
 						complete: () => {
 							cy.emit('zoomlvl', cy.zoomLevels()[ lvl ]);
@@ -1155,7 +1153,7 @@ BRp.load = function(){
 			} else {
 				cy.zoom( {
 					level: newZoom,
-					renderedPosition: { x: rpos[0], y: rpos[1] }
+					position: { x: pos[0], y: pos[1] }
 				} );
 			}
 		}
@@ -1653,10 +1651,14 @@ BRp.load = function(){
 
 				// use zoom anchor for locked axes
 				const anchor = cy.userZoomingAnchor();
-				if (anchor.x != undefined)
-					pan2.x = -zoom2 / zoom1 * (anchor.x - pan1.x) + anchor.x;
-				if (anchor.y != undefined)
-					pan2.y = -zoom2 / zoom1 * (anchor.y - pan1.y) + anchor.y;
+				if (anchor.x != undefined) {
+          const ax = anchor.x * cy.zoom() + cy.pan().x;
+					pan2.x = -zoom2 / zoom1 * (ax - pan1.x) + ax;
+        }
+				if (anchor.y != undefined) {
+          const ay = anchor.y * cy.zoom() + cy.pan().y;
+					pan2.y = -zoom2 / zoom1 * (ay - pan1.y) + ay;
+        }
 
         // remove dragged eles
         if( start && start.active() ){

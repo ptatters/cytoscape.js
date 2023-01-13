@@ -80,7 +80,7 @@ const configs = [
   {
     input,
     output: {
-      file: 'build/cytoscape.esm.min.js',
+      file: 'dist/cytoscape.esm.min.js',
       format: 'es'
     },
     plugins: [

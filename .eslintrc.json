@@ -1,4 +1,5 @@
 {
+  "root": true,
     "env": {
         "commonjs": true,
         "shared-node-browser": true,

@@ -9,6 +9,7 @@ let defaults = {
   clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
   equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
   minNodeSpacing: 10, // min spacing between outside of nodes (used for radius adjustment)
+  minEdgeLength: 10, // min edge length used for radius adjustment
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
   avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
   nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
@@ -133,7 +134,7 @@ ConcentricLayout.prototype.run = function(){
       let dsin = Math.sin( dTheta ) - Math.sin( 0 );
       let rMin = Math.sqrt( minDist * minDist / ( dcos * dcos + dsin * dsin ) ); // s.t. no nodes overlapping
 
-      r = Math.max( rMin, r );
+      r = Math.max( rMin, r, options.minEdgeLength );
     }
 
     level.r = r;

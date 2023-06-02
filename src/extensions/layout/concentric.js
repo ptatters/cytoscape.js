@@ -189,6 +189,7 @@ ConcentricLayout.prototype.run = function(){
   // position the nodes
   eles.nodes().layoutPositions( this, options, function( ele ){
     let id = ele.id();
+    ele.scratch('concentric_pos', pos[ id ]);
 
     return pos[ id ];
   } );
